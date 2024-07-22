@@ -1,0 +1,56 @@
+ /* src/Grid.css */
+body {
+    background-color: lightblue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  .title {
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    font-size: 2.5em;
+    margin-bottom: 20px;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-rows: repeat(9, 1fr);
+    gap: 1px; /* Bring squares closer */
+    background-color: lightblue; /* Grid background color */
+    padding: 5px; /* Add some padding */
+  }
+  
+  .row {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 1px; /* Bring squares closer */
+  }
+  
+  input {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    font-size: 20px;
+    border: 1px solid #000; /* Add border to input */
+    background-color: #7fffd4; /* Light blue box color */
+    border-radius: 5px; /* Add rounded corners to input */
+  }
+  
+  .buttons {
+    margin-top: 20px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #fff;
+    border: 2px solid #000;
+    color: #000;
+    margin-right: 10px;
+    border-radius: 5px; /* Add rounded corners to button */
+  }
