@@ -1,39 +1,60 @@
 pipeline {
     agent any
+
+    environment {
+        DOCKER_REGISTRY_CREDENTIALS = 'DockerHubCred'
+        DOCKER_IMAGE_NAME = 'prajit1999/sudoku'
+    }
+
     stages {
-        stage('Clone repository') {
+        stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/coldnights1/Sudoku'
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[url: 'https://github.com/coldnights1/Sudoku.git']]
+                ])
             }
         }
-        stage('Build Image '){
-            steps{
-                echo 'Building docker Image'
-                sh "docker build -t $DOCKERHUB_USER/sudoku -f Dockerfile .";   
+
+        stage('Build React App') {
+            steps {
+            
+                    sh 'npm install'
+                    sh 'CI=false npm run build'
+                
             }
         }
-        stage('Login into docker hub & Push Image to DockerHub'){
-            steps{
-                echo 'Pushing Images into DockerHub'
+
+        stage('Build Docker Image') {
+            steps {
+                
+                    script {
+                        docker.build("${DOCKER_IMAGE_NAME}", '.')
+                    }    
+            }
+        }
+
+        stage('Push Docker Images') {
+            steps {
                 script {
-                    docker.withRegistry('', 'prajit1999') {
-                        sh 'docker push $DOCKERHUB_USER/sudoku';
+                    docker.withRegistry('', 'DockerHubCred') {
+                        sh "docker tag ${DOCKER_IMAGE_NAME}:latest ${DOCKER_IMAGE_NAME}:latest"
+                        sh "docker push ${DOCKER_IMAGE_NAME}:latest"
                     }
                 }
             }
         }
-        stage('Delete Image from localsystem'){
-            steps{
-                echo 'Deleting Docker Image in docker'
-                sh 'docker rmi $DOCKERHUB_USER/sudoku';
-            }
-        }
-        stage('Run ansible playbook'){
-            steps{
+
+        stage('Run Ansible Playbook') {
+            steps {
                 script {
                     ansiblePlaybook(
-                        playbook: 'playbook.yml',
-                        inventory: 'inventory'
+                        playbook: 'ansibledeploy/deploy.yml',
+                        inventory: 'ansibledeploy/inventory',
                     )
                 }
             }
