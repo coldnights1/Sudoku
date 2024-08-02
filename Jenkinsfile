@@ -16,7 +16,7 @@ pipeline {
             steps{
                 echo 'Pushing Images into DockerHub'
                 script {
-                    docker.withRegistry('', 'prajitdocker') {
+                    docker.withRegistry('', 'prajit1999') {
                         sh 'docker push $DOCKERHUB_USER/sudoku';
                     }
                 }
