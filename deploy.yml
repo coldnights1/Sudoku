@@ -19,4 +19,4 @@
               name: docker
               state: started
        - name: Running container
-         shell: docker run -it -d -p 3000:3000 prajit1999/sudoku
+         shell: docker run -it -d -p 3000:3000 --name sudoku_project prajit1999/sudoku
