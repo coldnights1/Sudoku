@@ -1,64 +1,42 @@
 pipeline {
     agent any
-    
-    tools {
-        maven "mvn" 
-        jdk "jdk" 
-    }
-
-    environment {
-        DOCKER_IMAGE_NAME = 'calculator'
-        GITHUB_REPO_URL = 'https://github.com/coldnights1/ScientificCalculator'
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Clone repository') {
             steps {
-                script {
-                    git branch: 'main', url: "${GITHUB_REPO_URL}"
-                }
+                git branch: 'main', url: 'https://github.com/coldnights1/Sudoku'
             }
         }
-
-        stage('mvn build') {
-            steps {
-                script {
-                    mvnHome = tool 'mvn'
-                    sh "${mvnHome}/bin/mvn clean package"
-                }
+        stage('Build Image '){
+            steps{
+                echo 'Building docker Image'
+                sh "docker build -t $DOCKERHUB_USER/sudoku -f Dockerfile .";   
             }
         }
-
-        stage('Build Docker Image') {
-            steps {
+        stage('Login into docker hub & Push Image to DockerHub'){
+            steps{
+                echo 'Pushing Images into DockerHub'
                 script {
-                    // Building Docker image
-                    docker.build("${DOCKER_IMAGE_NAME}", '.')
-                }
-            }
-        }
-
-        stage('Push Docker Images') {
-            steps {
-                script{
-                    docker.withRegistry('', 'docker-hub-credentials') {
-                    sh 'docker tag calculator prajit1999/calculator:latest'
-                    sh 'docker push prajit1999/calculator'
+                    docker.withRegistry('', 'prajitdocker') {
+                        sh 'docker push $DOCKERHUB_USER/sudoku';
                     }
-                 }
+                }
             }
         }
-
-   stage('Ansible') {
-            steps {
+        stage('Delete Image from localsystem'){
+            steps{
+                echo 'Deleting Docker Image in docker'
+                sh 'docker rmi $DOCKERHUB_USER/sudoku';
+            }
+        }
+        stage('Run ansible playbook'){
+            steps{
                 script {
                     ansiblePlaybook(
-                        playbook: 'deploy.yml',
+                        playbook: 'playbook.yml',
                         inventory: 'inventory'
-                     )
+                    )
                 }
             }
         }
-
     }
 }
